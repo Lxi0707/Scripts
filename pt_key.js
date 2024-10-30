@@ -4,7 +4,7 @@
 名称:pt_key
 描述:获取京东ck多账号
 作者:Lxi666
-支持:仅测试Quantumult-X,  surge loon自测
+支持:Quantumult-X surge loon
 更新日志:
 2024.10.29修改脚本一直处于运行状态，添加多账号获取
 2024.10.30添加ck在日志显示,surge,loon适配
@@ -28,7 +28,7 @@ TG群聊:https://t.me/LxiCollectionhallChat
 #quantumultx
 
 [rewrite_local]
-^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-request-header jd.js
+^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-response-body https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js
 
 
 #Surge
@@ -36,11 +36,11 @@ TG群聊:https://t.me/LxiCollectionhallChat
 #!desc=更新cookie
 
 [Script]
-JD-Cookie = type=http-request, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), script-path=jd.js, requires-body=false
+JD-Cookie = type=http-request, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js, requires-body=false
 
 #Loon
 
-http-request ^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) script-path=jd.js
+http-request ^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js
 
 
 [MITM]
