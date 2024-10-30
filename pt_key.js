@@ -28,7 +28,7 @@ TG群聊:https://t.me/LxiCollectionhallChat
 #quantumultx
 
 [rewrite_local]
-^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-response-body https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js
+^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-response-body https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js
 
 
 #Surge
@@ -36,11 +36,11 @@ TG群聊:https://t.me/LxiCollectionhallChat
 #!desc=更新cookie
 
 [Script]
-JD-Cookie = type=http-request, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js, requires-body=false
+JD-Cookie = type=http-request, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js, requires-body=false
 
 #Loon
 
-http-request ^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/63cfcf8d173601fca91e50a9a061cc09ae178ba2/pt_key.js
+http-request ^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js
 
 
 [MITM]
