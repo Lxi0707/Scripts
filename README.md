@@ -4,7 +4,7 @@
 
 ## ⚙️ jd cookie 配置文件
 -  📦 **quantumultx Loon** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js)
--  📦 **surge模块** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.sgmodul)
+-  📦 **surge模块** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.sgmodule)
 
 -  📢 **使用说明** ： 切换账户需退后台重新进
 
