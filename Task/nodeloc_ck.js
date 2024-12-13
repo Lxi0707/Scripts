@@ -67,9 +67,21 @@ const myRequest = {
 
 // 执行请求
 $task.fetch(myRequest).then(response => {
+  console.log("HTTP 状态码: " + response.statusCode);
+  console.log("响应头: " + JSON.stringify(response.headers));
+  console.log("响应体内容: " + response.body);
+
   if (response.statusCode === 200) {
     try {
-      const data = JSON.parse(response.body); // 解析 JSON
+      // 检查响应内容类型
+      const contentType = response.headers["Content-Type"] || response.headers["content-type"];
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("响应不是 JSON 格式");
+      }
+
+      // 尝试解析 JSON
+      const data = JSON.parse(response.body);
+
       if (data.auth) {
         const currentCK = data.auth; // 当前获取的 CK
         const savedCK = $persistentStore.read(CK_KEY); // 读取已存储的 CK
@@ -78,7 +90,7 @@ $task.fetch(myRequest).then(response => {
           // 如果 CK 不同，保存并弹窗提示
           $persistentStore.write(currentCK, CK_KEY);
           console.log("成功获取新 CK: " + currentCK);
-          $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示
+          $notify("nodeloc CK 获取", "获取成功", currentCK); // 弹窗提示
         } else {
           console.log("CK 未变化，不弹窗");
         }
@@ -86,7 +98,7 @@ $task.fetch(myRequest).then(response => {
         console.log("未找到 auth 字段，返回数据: ", data);
       }
     } catch (e) {
-      console.log("解析 JSON 失败: ", e);
+      console.log("解析 JSON 失败，错误: ", e);
     }
   } else {
     console.log("请求失败，状态码：" + response.statusCode);
