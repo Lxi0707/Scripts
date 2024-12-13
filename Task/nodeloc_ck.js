@@ -73,16 +73,8 @@ $task.fetch(myRequest).then(response => {
 
   if (response.statusCode === 200) {
     try {
-      // 检查响应内容类型
-      const contentType = response.headers["Content-Type"] || response.headers["content-type"];
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("响应不是 JSON 格式");
-      }
-
-      // 尝试解析 JSON
-      const data = JSON.parse(response.body);
-
-      if (data.auth) {
+      const data = JSON.parse(response.body); // 确保解析 JSON
+      if (data && data.auth) {
         const currentCK = data.auth; // 当前获取的 CK
         const savedCK = $persistentStore.read(CK_KEY); // 读取已存储的 CK
 
@@ -98,13 +90,13 @@ $task.fetch(myRequest).then(response => {
         console.log("未找到 auth 字段，返回数据: ", data);
       }
     } catch (e) {
-      console.log("解析 JSON 失败，错误: ", e);
+      console.error("解析 JSON 失败，错误: ", e);
     }
   } else {
-    console.log("请求失败，状态码：" + response.statusCode);
+    console.error("请求失败，状态码：" + response.statusCode);
   }
   $done();
 }, reason => {
-  console.log("请求失败，原因：" + reason.error);
+  console.error("请求失败，原因：" + reason.error);
   $done();
 });
