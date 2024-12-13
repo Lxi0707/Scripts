@@ -8,7 +8,7 @@
 作者:@Lxi0707
 支持:Quantumult-X surge loon
 
-网站入口：
+网站入口：https://www.nodeloc.com
 脚本说明:获取ck
 
 BoxJs订阅地址:
@@ -28,9 +28,11 @@ TG群聊:https://t.me/LxiCollectionhallChat
 ===================|调试区|====================
 
 quantumultx
+
 [rewrite_local]
-^https:\/\/www\.nodeloc\.com\/api\/.*$ url script-response-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
-http-request ^https:\/\/www\.nodeloc\.com\/api\/.*$ script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
+^https:\/\/www\.nodeloc\.com\/api\/.*$ url script-request-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
+[Script]
+https:\/\/www\.nodeloc\.com\/api\/.* url script-request-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
 
 [MITM]
 hostname = www.nodeloc.com
