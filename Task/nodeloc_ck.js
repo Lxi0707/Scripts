@@ -29,9 +29,8 @@ TG群聊:https://t.me/LxiCollectionhallChat
 
 quantumultx
 [rewrite_local]
-^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ url script-request-body https://raw.githubusercontent.com/your-script-location/your-script.js
-http-request ^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ script-path=https://raw.githubusercontent.com/your-script-location/your-script.js
-
+^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ url script-request-body https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
+http-request ^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
 
 [MITM]
 hostname = www.nodeloc.com
