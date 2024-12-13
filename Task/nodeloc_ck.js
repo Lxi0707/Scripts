@@ -30,10 +30,7 @@ TG群聊:https://t.me/LxiCollectionhallChat
 quantumultx
 
 [rewrite_local]
-^https:\/\/www\.nodeloc\.com\/api\/.*$ url script-request-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
-[Script]
-^https:\/\/www\.nodeloc\.com\/api\/.* url script-request-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
-
+^https:\/\/www\.nodeloc\.com\/api\/.*$ url script-response-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
 [MITM]
 hostname = www.nodeloc.com
 
