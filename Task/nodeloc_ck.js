@@ -39,55 +39,51 @@ hostname = www.nodeloc.com
  * 获取 nodeloc 的 ck
  */
 
-// 定义请求信息
-const myRequest = {
-  url: "https://www.nodeloc.com/api/websocket/auth", // 替换为实际接口地址
-  method: "GET", // 根据实际需求调整为 POST/GET
-  headers: {
-    "Content-Type": "application/json", // 根据接口要求调整
-    "Authorization": "Bearer YOUR_TOKEN" // 如果需要认证，请替换为实际的 token
-  }
+/**
+ * 获取 nodeloc 的 ck
+ */
+
+const url = `https://www.nodeloc.com/api/websocket/auth`;
+const method = `POST`;
+const headers = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'Origin': 'https://www.nodeloc.com',
+  'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+  'Referer': 'https://www.nodeloc.com/',
+  'Cookie': 'flarum_lscache_vary=C75exMFv1MX55GQNMkFDAmyuu4SUTpTcE4I5WSNm; flarum_session=iAOH5bax1mhNmvhZhiWKdqXNTdVMAt81mNcBGi4k; _clck=1p7n8q4%7C2%7Cfr2%7C0%7C1751; flarum_remember=1nvskbVvzHbaTlKHo3vTnL6RwwZS6MvsEsaypDXh',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+  'Accept': '*/*',
+  'Connection': 'keep-alive'
 };
 
-// 发送请求
-$task.fetch(myRequest).then(
-  (response) => {
-    console.log("HTTP 状态码: " + response.statusCode); // 打印状态码
-    console.log("响应头: " + JSON.stringify(response.headers)); // 打印响应头
-    console.log("响应体内容: " + response.body); // 打印响应体内容
+const body = 'socket_id=26292995.636612541&channel_name=private-user%3D2540';
 
-    // 检查状态码
-    if (response.statusCode === 200) {
-      try {
-        // 解析 JSON 响应体
-        const data = JSON.parse(response.body);
-        console.log("解析成功，返回数据: ", data);
+const myRequest = {
+  url: url,
+  method: method,
+  headers: headers,
+  body: body
+};
 
-        // 检查是否包含 auth 字段
-        if (data && data.auth) {
-          const currentCK = data.auth; // 提取 auth 字段
-          const savedCK = $persistentStore.read("nodeloc_ck"); // 读取之前存储的 CK
-
-          // 比较新旧 CK 是否一致
-          if (currentCK !== savedCK) {
-            $persistentStore.write(currentCK, "nodeloc_ck"); // 保存新的 CK
-            $notify("nodeloc CK 获取", "获取成功", currentCK); // 通知成功
-          } else {
-            console.log("CK 未变化，无需更新"); // CK 无变化
-          }
-        } else {
-          console.error("返回数据缺少 auth 字段"); // 缺少 auth
-        }
-      } catch (e) {
-        console.error("解析 JSON 失败: " + e); // 捕获 JSON 解析错误
+$task.fetch(myRequest).then(response => {
+  if (response.statusCode === 200) {
+    try {
+      const data = JSON.parse(response.body); // 解析为 JSON 对象
+      if (data.auth) {
+        console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
+        $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
+      } else {
+        console.log("未找到auth字段，返回数据: ", data);
       }
-    } else {
-      console.error("HTTP 请求失败，状态码：" + response.statusCode); // 状态码非 200
+    } catch (e) {
+      console.log("解析 JSON 失败: ", e);
     }
-    $done(); // 完成任务
-  },
-  (reason) => {
-    console.error("请求失败，原因：" + JSON.stringify(reason)); // 请求失败原因
-    $done(); // 完成任务
+  } else {
+    console.log("请求失败，状态码：" + response.statusCode);
   }
-);
+  $done();
+}, reason => {
+  console.log("请求失败，原因：" + reason.error);
+  $done();
+});
