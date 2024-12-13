@@ -39,6 +39,9 @@ hostname = www.nodeloc.com
  * 获取 nodeloc 的 ck
  */
 
+// 标志位，确保只弹窗一次
+let notified = false;
+
 const url = `https://www.nodeloc.com/api/websocket/auth`;
 const method = `POST`;
 const headers = {
@@ -68,7 +71,10 @@ $task.fetch(myRequest).then(response => {
       const data = JSON.parse(response.body); // 解析为 JSON 对象
       if (data.auth) {
         console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
-        $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
+        if (!notified) {
+          $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
+          notified = true; // 设置标志位为已通知
+        }
       } else {
         console.log("未找到auth字段，返回数据: ", data);
       }
