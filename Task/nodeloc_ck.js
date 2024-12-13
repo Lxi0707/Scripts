@@ -36,7 +36,7 @@ hostname = www.nodeloc.com
 
 
 /**
- * NodeLoc 获取 ck 并弹窗提示
+ * 获取 nodeloc 的 ck
  */
 
 const url = `https://www.nodeloc.com/api/websocket/auth`;
@@ -72,18 +72,27 @@ $task.fetch(myRequest).then(response => {
         // 成功获取到ck，打印并提示
         const authToken = data.auth;
         console.log("成功获取ck: " + authToken);
-        // 如果需要，可以存储或进一步处理这个ck
+        // 弹出通知提示
+        $notification.post('成功获取ck', 'ck已获取', authToken);
       } else {
         console.log("获取ck失败，返回数据: ", data);
+        // 弹出通知提示获取失败
+        $notification.post('获取ck失败', '未能获取到ck', '');
       }
     } catch (e) {
       console.log("解析 JSON 失败: ", e);
+      // 弹出通知提示解析失败
+      $notification.post('解析失败', '解析响应体失败', '');
     }
   } else {
     console.log("请求失败，状态码：" + response.statusCode);
+    // 弹出通知提示请求失败
+    $notification.post('请求失败', '状态码: ' + response.statusCode, '');
   }
   $done();
 }, reason => {
   console.log("请求失败，原因：" + reason.error);
+  // 弹出通知提示请求失败
+  $notification.post('请求失败', reason.error, '');
   $done();
 });
