@@ -39,9 +39,10 @@ hostname = www.nodeloc.com
  * 获取 nodeloc 的 ck
  */
 
-// 标志位，确保只弹窗一次
-let notified = false;
+// 存储 CK 的键名
+const CK_KEY = "nodeloc_ck";
 
+// 请求相关配置
 const url = `https://www.nodeloc.com/api/websocket/auth`;
 const method = `POST`;
 const headers = {
@@ -55,7 +56,6 @@ const headers = {
   'Accept': '*/*',
   'Connection': 'keep-alive'
 };
-
 const body = 'socket_id=26292995.636612541&channel_name=private-user%3D2540';
 
 const myRequest = {
@@ -65,18 +65,25 @@ const myRequest = {
   body: body
 };
 
+// 执行请求
 $task.fetch(myRequest).then(response => {
   if (response.statusCode === 200) {
     try {
-      const data = JSON.parse(response.body); // 解析为 JSON 对象
+      const data = JSON.parse(response.body); // 解析 JSON
       if (data.auth) {
-        console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
-        if (!notified) {
-          $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
-          notified = true; // 设置标志位为已通知
+        const currentCK = data.auth; // 当前获取的 CK
+        const savedCK = $persistentStore.read(CK_KEY); // 读取已存储的 CK
+
+        if (currentCK !== savedCK) {
+          // 如果 CK 不同，保存并弹窗提示
+          $persistentStore.write(currentCK, CK_KEY);
+          console.log("成功获取新 CK: " + currentCK);
+          $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示
+        } else {
+          console.log("CK 未变化，不弹窗");
         }
       } else {
-        console.log("未找到auth字段，返回数据: ", data);
+        console.log("未找到 auth 字段，返回数据: ", data);
       }
     } catch (e) {
       console.log("解析 JSON 失败: ", e);
