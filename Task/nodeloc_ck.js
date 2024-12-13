@@ -66,37 +66,42 @@ const myRequest = {
 };
 
 // 执行请求
-$task.fetch(myRequest).then(response => {
-  console.log("HTTP 状态码: " + response.statusCode);
-  console.log("响应头: " + JSON.stringify(response.headers));
-  console.log("响应体内容: " + response.body);
+$task.fetch(myRequest).then(
+  (response) => {
+    console.log("HTTP 状态码: " + response.statusCode);
+    console.log("响应头: " + JSON.stringify(response.headers));
+    console.log("响应体内容: " + response.body);
 
-  if (response.statusCode === 200) {
-    try {
-      const data = JSON.parse(response.body); // 确保解析 JSON
-      if (data && data.auth) {
-        const currentCK = data.auth; // 当前获取的 CK
-        const savedCK = $persistentStore.read(CK_KEY); // 读取已存储的 CK
+    if (response.statusCode === 200) {
+      try {
+        const data = JSON.parse(response.body); // 确保解析 JSON
+        console.log("解析成功，返回数据: ", data);
 
-        if (currentCK !== savedCK) {
-          // 如果 CK 不同，保存并弹窗提示
-          $persistentStore.write(currentCK, CK_KEY);
-          console.log("成功获取新 CK: " + currentCK);
-          $notify("nodeloc CK 获取", "获取成功", currentCK); // 弹窗提示
+        if (data && data.auth) {
+          const currentCK = data.auth; // 当前获取的 CK
+          const savedCK = $persistentStore.read(CK_KEY); // 读取已存储的 CK
+
+          if (currentCK !== savedCK) {
+            // 如果 CK 不同，保存并弹窗提示
+            $persistentStore.write(currentCK, CK_KEY);
+            console.log("成功获取新 CK: " + currentCK);
+            $notify("nodeloc CK 获取", "获取成功", currentCK); // 弹窗提示
+          } else {
+            console.log("CK 未变化，不弹窗");
+          }
         } else {
-          console.log("CK 未变化，不弹窗");
+          console.error("未找到 auth 字段，返回数据: ", data);
         }
-      } else {
-        console.log("未找到 auth 字段，返回数据: ", data);
+      } catch (e) {
+        console.error("解析 JSON 失败，错误: ", e);
       }
-    } catch (e) {
-      console.error("解析 JSON 失败，错误: ", e);
+    } else {
+      console.error("请求失败，状态码：" + response.statusCode);
     }
-  } else {
-    console.error("请求失败，状态码：" + response.statusCode);
+    $done(); // 确保请求完成
+  },
+  (reason) => {
+    console.error("请求失败，原因：" + reason.error);
+    $done(); // 确保请求完成
   }
-  $done();
-}, reason => {
-  console.error("请求失败，原因：" + reason.error);
-  $done();
-});
+);
