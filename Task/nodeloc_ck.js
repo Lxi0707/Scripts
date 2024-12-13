@@ -63,28 +63,23 @@ const myRequest = {
 };
 
 $task.fetch(myRequest).then(response => {
-  console.log("HTTP 状态码: " + response.statusCode);
   if (response.statusCode === 200) {
-    const data = response.body; // 直接处理返回的响应内容
-    console.log("返回数据：", data);
-
-    if (data.includes("auth")) {
-      const ck = data.match(/"auth":"(.*?)"/)[1]; // 提取 auth 的值
-      console.log("成功获取ck: " + ck);
-
-      // 弹窗提示
-      $notify("nodeloc CK 获取", "获取成功", "CK: " + ck);
-    } else {
-      console.log("未找到auth字段，返回数据: ", data);
-      $notify("nodeloc CK 获取", "获取失败", "请检查返回数据或脚本配置。");
+    try {
+      const data = JSON.parse(response.body); // 解析为 JSON 对象
+      if (data.auth) {
+        console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
+        $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
+      } else {
+        console.log("未找到auth字段，返回数据: ", data);
+      }
+    } catch (e) {
+      console.log("解析 JSON 失败: ", e);
     }
   } else {
     console.log("请求失败，状态码：" + response.statusCode);
-    $notify("nodeloc CK 获取", "请求失败", "HTTP 状态码: " + response.statusCode);
   }
   $done();
 }, reason => {
   console.log("请求失败，原因：" + reason.error);
-  $notify("nodeloc CK 获取", "请求失败", reason.error);
   $done();
 });
