@@ -66,23 +66,31 @@ $task.fetch(myRequest).then(response => {
   console.log("HTTP 状态码: " + response.statusCode);
   if (response.statusCode === 200) {
     try {
-      const data = JSON.parse(response.body); // 将响应体解析为 JSON
-      console.log("返回数据：", data);  // 打印返回的数据
-      if (data.auth) {
-        // 成功获取到ck，打印并提示
-        const authToken = data.auth;
-        console.log("成功获取ck: " + authToken);
-        // 弹出通知提示
-        $notification.post('成功获取ck', 'ck已获取', authToken);
+      // 确认响应头是否为 JSON 类型
+      const contentType = response.headers['Content-Type'] || '';
+      if (contentType.includes('application/json')) {
+        const data = JSON.parse(response.body); // 解析响应体为 JSON
+        console.log("返回数据：", data);  // 打印返回的数据
+
+        if (data.auth) {
+          // 成功获取到ck，打印并提示
+          const authToken = data.auth;
+          console.log("成功获取ck: " + authToken);
+          // 弹出通知提示
+          $notification.post('成功获取ck', 'ck已获取', authToken);
+        } else {
+          console.log("获取ck失败，返回数据: ", data);
+          // 弹出通知提示获取失败
+          $notification.post('获取ck失败', '未能获取到ck', '');
+        }
       } else {
-        console.log("获取ck失败，返回数据: ", data);
-        // 弹出通知提示获取失败
-        $notification.post('获取ck失败', '未能获取到ck', '');
+        console.log("响应不是JSON格式");
+        $notification.post('获取ck失败', '响应数据不是有效的JSON', '');
       }
     } catch (e) {
       console.log("解析 JSON 失败: ", e);
       // 弹出通知提示解析失败
-      $notification.post('解析失败', '解析响应体失败', '');
+      $notification.post('解析失败', '无法解析响应数据', '');
     }
   } else {
     console.log("请求失败，状态码：" + response.statusCode);
