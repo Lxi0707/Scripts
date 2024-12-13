@@ -65,47 +65,26 @@ const myRequest = {
 $task.fetch(myRequest).then(response => {
   console.log("HTTP 状态码: " + response.statusCode);
   if (response.statusCode === 200) {
-    try {
-      // 确认响应头是否为 JSON 类型
-      const contentType = response.headers['Content-Type'] || '';
-      console.log("响应头 Content-Type: " + contentType);
+    const data = response.body; // 直接处理返回的响应内容
+    console.log("返回数据：", data);
 
-      // 打印响应体内容，以便调试
-      console.log("响应体内容：", response.body);
-      
-      if (contentType.includes('application/json')) {
-        const data = JSON.parse(response.body); // 解析响应体为 JSON
-        console.log("返回数据：", data);  // 打印返回的数据
+    if (data.includes("auth")) {
+      const ck = data.match(/"auth":"(.*?)"/)[1]; // 提取 auth 的值
+      console.log("成功获取ck: " + ck);
 
-        if (data.auth) {
-          // 成功获取到ck，打印并提示
-          const authToken = data.auth;
-          console.log("成功获取ck: " + authToken);
-          // 弹出通知提示
-          $notification.post('成功获取ck', 'ck已获取', authToken);
-        } else {
-          console.log("获取ck失败，返回数据: ", data);
-          // 弹出通知提示获取失败
-          $notification.post('获取ck失败', '未能获取到ck', '');
-        }
-      } else {
-        console.log("响应不是JSON格式");
-        $notification.post('获取ck失败', '响应数据不是有效的JSON', '');
-      }
-    } catch (e) {
-      console.log("解析 JSON 失败: ", e);
-      // 弹出通知提示解析失败
-      $notification.post('解析失败', '无法解析响应数据', '');
+      // 弹窗提示
+      $notify("nodeloc CK 获取", "获取成功", "CK: " + ck);
+    } else {
+      console.log("未找到auth字段，返回数据: ", data);
+      $notify("nodeloc CK 获取", "获取失败", "请检查返回数据或脚本配置。");
     }
   } else {
     console.log("请求失败，状态码：" + response.statusCode);
-    // 弹出通知提示请求失败
-    $notification.post('请求失败', '状态码: ' + response.statusCode, '');
+    $notify("nodeloc CK 获取", "请求失败", "HTTP 状态码: " + response.statusCode);
   }
   $done();
 }, reason => {
   console.log("请求失败，原因：" + reason.error);
-  // 弹出通知提示请求失败
-  $notification.post('请求失败', reason.error, '');
+  $notify("nodeloc CK 获取", "请求失败", reason.error);
   $done();
 });
