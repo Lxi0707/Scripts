@@ -36,11 +36,7 @@ hostname = www.nodeloc.com
 
 
 /**
- * 获取 nodeloc 的 ck
- */
-
-/**
- * 获取 nodeloc 的 ck
+ * 获取 nodeloc 的 ck 并上传至 BoxJS
  */
 
 const url = `https://www.nodeloc.com/api/websocket/auth`;
@@ -72,7 +68,33 @@ $task.fetch(myRequest).then(response => {
       const data = JSON.parse(response.body); // 解析为 JSON 对象
       if (data.auth) {
         console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
-        $notify("nodeloc CK 获取", "获取成功", ""); // 弹窗提示获取成功
+        $notify("nodeloc CK 获取", "获取成功", data.auth); // 弹窗提示获取成功
+
+        // 上传 CK 到 BoxJS
+        const boxjsUrl = `http://boxjs.com/proxy/data/save`; // 确保是 BoxJS 的数据保存 API
+        const boxjsBody = {
+          key: "nodeloc_ck_cookie",
+          val: data.auth
+        };
+        const boxjsHeaders = {
+          'Content-Type': 'application/json'
+        };
+
+        const boxjsRequest = {
+          url: boxjsUrl,
+          method: 'POST',
+          headers: boxjsHeaders,
+          body: JSON.stringify(boxjsBody)
+        };
+
+        $task.fetch(boxjsRequest).then(boxjsResponse => {
+          if (boxjsResponse.statusCode === 200) {
+            console.log("CK 成功上传到 BoxJS");
+          } else {
+            console.log("CK 上传到 BoxJS 失败，状态码：" + boxjsResponse.statusCode);
+          }
+          $done();
+        });
       } else {
         console.log("未找到auth字段，返回数据: ", data);
       }
