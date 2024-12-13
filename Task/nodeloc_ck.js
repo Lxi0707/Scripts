@@ -29,8 +29,8 @@ TG群聊:https://t.me/LxiCollectionhallChat
 
 quantumultx
 [rewrite_local]
-^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ url script-request-body https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
-http-request ^https:\/\/www\.nodeloc\.com\/api\/checkin\/history$ script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
+^https:\/\/www\.nodeloc\.com\/api\/.*$ url script-request-body https://raw.githubusercontent.com/Lxi0707/boxjs/main/nodeloc_ck.js
+http-request ^https:\/\/www\.nodeloc\.com\/api\/.*$ script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/nodeloc_ck.js
 
 [MITM]
 hostname = www.nodeloc.com
@@ -40,64 +40,51 @@ hostname = www.nodeloc.com
  * NodeLoc 获取 ck 并弹窗提示
  */
 
-const url = `https://www.nodeloc.com/api/checkin/history`;
-const method = `GET`;
+const url = `https://www.nodeloc.com/api/websocket/auth`;
+const method = `POST`;
 const headers = {
-    'Sec-Fetch-Dest': 'empty',
-    'Connection': 'keep-alive',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'X-CSRF-Token': 'C75exMFv1MX55GQNMkFDAmyuu4SUTpTcE4I5WSNm',
-    'Sec-Fetch-Site': 'same-origin',
-    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-    'Sec-Fetch-Mode': 'cors',
-    'Cookie': 'flarum_lscache_vary=C75exMFv1MX55GQNMkFDAmyuu4SUTpTcE4I5WSNm; flarum_session=iAOH5bax1mhNmvhZhiWKdqXNTdVMAt81mNcBGi4k; _clck=1p7n8q4%7C2%7Cfr2%7C0%7C1751; flarum_remember=1nvskbVvzHbaTlKHo3vTnL6RwwZS6MvsEsaypDXh',
-    'Referer': 'https://www.nodeloc.com/u/Lxi/checkin/history',
-    'Host': 'www.nodeloc.com',
-    'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-    'Accept': '*/*'
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'Origin': 'https://www.nodeloc.com',
+  'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+  'Referer': 'https://www.nodeloc.com/',
+  'Cookie': 'flarum_lscache_vary=C75exMFv1MX55GQNMkFDAmyuu4SUTpTcE4I5WSNm; flarum_session=iAOH5bax1mhNmvhZhiWKdqXNTdVMAt81mNcBGi4k; _clck=1p7n8q4%7C2%7Cfr2%7C0%7C1751; flarum_remember=1nvskbVvzHbaTlKHo3vTnL6RwwZS6MvsEsaypDXh',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+  'Accept': '*/*',
+  'Connection': 'keep-alive'
 };
-const body = ``;
+
+const body = 'socket_id=26292995.636612541&channel_name=private-user%3D2540';
 
 const myRequest = {
-    url: url,
-    method: method,
-    headers: headers,
-    body: body
+  url: url,
+  method: method,
+  headers: headers,
+  body: body
 };
 
 $task.fetch(myRequest).then(response => {
-    // 打印 HTTP 请求日志
-    console.log(response.statusCode + "\n\n" + response.body);
-    
-    // 判断响应状态码
-    if (response.statusCode === 200) {
-        try {
-            const responseBody = JSON.parse(response.body); // 假设返回的内容是 JSON 格式
-            
-            // 根据实际的返回内容判断是否成功
-            if (responseBody.success) {
-                // 获取成功的提示
-                $notify("NodeLoc 获取 ck", "成功", "ck 获取成功！");
-                $log("ck 获取成功！");
-            } else {
-                // 获取失败的提示
-                $notify("NodeLoc 获取 ck", "失败", "ck 获取失败！");
-                $log("ck 获取失败！");
-            }
-        } catch (error) {
-            // 如果解析 JSON 失败，弹出解析失败的提示
-            $notify("NodeLoc 获取 ck", "失败", "返回数据格式错误！");
-            $log("返回数据格式错误：" + error);
-        }
-    } else {
-        // 请求失败时的提示
-        $notify("NodeLoc 获取 ck", "请求失败", "请求未能成功，状态码：" + response.statusCode);
-        $log("请求失败，状态码：" + response.statusCode);
+  console.log("HTTP 状态码: " + response.statusCode);
+  if (response.statusCode === 200) {
+    try {
+      const data = JSON.parse(response.body); // 将响应体解析为 JSON
+      console.log("返回数据：", data);  // 打印返回的数据
+      if (data.auth) {
+        // 成功获取到ck，打印并提示
+        const authToken = data.auth;
+        console.log("成功获取ck: " + authToken);
+        // 如果需要，可以存储或进一步处理这个ck
+      } else {
+        console.log("获取ck失败，返回数据: ", data);
+      }
+    } catch (e) {
+      console.log("解析 JSON 失败: ", e);
     }
-    $done();
+  } else {
+    console.log("请求失败，状态码：" + response.statusCode);
+  }
+  $done();
 }, reason => {
-    // 请求错误时的提示
-    $notify("NodeLoc 获取 ck", "错误", "请求发生错误：" + reason.error);
-    $log("请求错误：" + reason.error);
-    $done();
+  console.log("请求失败，原因：" + reason.error);
+  $done();
 });
