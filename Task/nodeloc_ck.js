@@ -68,6 +68,11 @@ $task.fetch(myRequest).then(response => {
     try {
       // 确认响应头是否为 JSON 类型
       const contentType = response.headers['Content-Type'] || '';
+      console.log("响应头 Content-Type: " + contentType);
+
+      // 打印响应体内容，以便调试
+      console.log("响应体内容：", response.body);
+      
       if (contentType.includes('application/json')) {
         const data = JSON.parse(response.body); // 解析响应体为 JSON
         console.log("返回数据：", data);  // 打印返回的数据
