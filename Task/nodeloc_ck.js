@@ -40,7 +40,7 @@ hostname = www.nodeloc.com
  */
 
 const $ = new Env("nodeloc CK 获取"); // 初始化环境
-const CK_KEY = "nodeloc_ck"; // BoxJS 存储 CK 的键名
+const CK_KEY = "nodeloc_ck_cookie"; // BoxJS 存储 CK 的键名
 
 // 请求配置
 const url = `https://www.nodeloc.com/api/websocket/auth`;
@@ -71,7 +71,12 @@ const requestConfig = { url, method: "POST", headers, body };
         $.msg("nodeloc CK 获取", "获取成功", data.auth);
 
         // 存储 CK 到 BoxJS
-        saveCK(data.auth);
+        const saved = saveCK(data.auth);
+        if (saved) {
+          console.log("🎉 CK 已上传到 BoxJS");
+        } else {
+          console.error("❌ CK 存储到 BoxJS 失败，请检查 BoxJS 配置或环境支持情况！");
+        }
       } else {
         console.log(`❌ 未找到 auth 字段，返回数据: ${JSON.stringify(data)}`);
       }
@@ -89,8 +94,8 @@ function saveCK(ck) {
   const savedCK = $.getdata(CK_KEY) || ""; // 获取已存储的 CK
   const ckArr = savedCK.split("@").filter(Boolean); // 解析为数组
   if (!ckArr.includes(ck)) ckArr.push(ck); // 避免重复
-  $.setdata(ckArr.join("@"), CK_KEY); // 持久化保存
-  console.log("🎉 CK 已上传到 BoxJS");
+  const result = $.setdata(ckArr.join("@"), CK_KEY); // 持久化保存
+  return result; // 返回是否存储成功
 }
 
 // 异步请求封装
