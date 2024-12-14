@@ -1,7 +1,7 @@
 /**
  * 自动获取jdcookie
 
-名称:pt_key
+名称:pt_key获取
 描述:获取京东ck多账号
 作者:@Lxi0707
 支持:Quantumult-X surge loon
