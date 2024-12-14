@@ -71,7 +71,7 @@ $task.fetch(myRequest).then(response => {
         $notify("nodeloc CK 获取", "获取成功", data.auth); // 弹窗提示获取成功
 
         // 上传 CK 到 BoxJS
-        const boxjsUrl = `https://boxjs.com/proxy/data/save`; // 修改为你的 BoxJS 地址
+        const boxjsUrl = `https://boxjs.com`; // 修改为你的 BoxJS 地址
         const boxjsBody = {
           key: "nodeloc_ck_cookie",
           val: data.auth
