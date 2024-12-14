@@ -11,7 +11,7 @@
 网站入口：https://www.nodeloc.com
 脚本说明:获取ck
 
-BoxJs订阅地址:
+BoxJs订阅地址:https://raw.githubusercontent.com/Lxi0707/boxjs/refs/heads/main/Lxi.json
 
 TG频道:https://t.me/LXi_Collection_hall
 TG群聊:https://t.me/LxiCollectionhallChat
