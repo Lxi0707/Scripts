@@ -71,41 +71,27 @@ $task.fetch(myRequest).then(response => {
         $notify("nodeloc CK 获取", "获取成功", data.auth); // 弹窗提示获取成功
 
         // 上传 CK 到 BoxJS
-        const boxjsUrl = `http://boxjs.com/proxy/data/save`; // 确保是 BoxJS 的数据保存 API
-        const boxjsBody = {
-          key: "nodeloc_ck_cookie",
-          val: data.auth
-        };
-        const boxjsHeaders = {
-          'Content-Type': 'application/json'
-        };
+const boxjsUrl = `https://boxjs.com/proxy/data/save `; // 修改为你的 BoxJS 地址
+const boxjsBody = {
+  key: "nodeloc_ck_cookie",
+  val: data.auth
+};
+const boxjsHeaders = {
+  'Content-Type': 'application/json'
+};
 
-        const boxjsRequest = {
-          url: boxjsUrl,
-          method: 'POST',
-          headers: boxjsHeaders,
-          body: JSON.stringify(boxjsBody)
-        };
+const boxjsRequest = {
+  url: boxjsUrl,
+  method: 'POST',
+  headers: boxjsHeaders,
+  body: JSON.stringify(boxjsBody)
+};
 
-        $task.fetch(boxjsRequest).then(boxjsResponse => {
-          if (boxjsResponse.statusCode === 200) {
-            console.log("CK 成功上传到 BoxJS");
-          } else {
-            console.log("CK 上传到 BoxJS 失败，状态码：" + boxjsResponse.statusCode);
-          }
-          $done();
-        });
-      } else {
-        console.log("未找到auth字段，返回数据: ", data);
-      }
-    } catch (e) {
-      console.log("解析 JSON 失败: ", e);
-    }
+$task.fetch(boxjsRequest).then(boxjsResponse => {
+  if (boxjsResponse.statusCode === 200) {
+    console.log("CK 成功上传到 BoxJS");
   } else {
-    console.log("请求失败，状态码：" + response.statusCode);
+    console.log("CK 上传到 BoxJS 失败，状态码：" + boxjsResponse.statusCode);
   }
-  $done();
-}, reason => {
-  console.log("请求失败，原因：" + reason.error);
   $done();
 });
