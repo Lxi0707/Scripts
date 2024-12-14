@@ -39,73 +39,86 @@ hostname = www.nodeloc.com
  * 获取 nodeloc 的 ck 并上传至 BoxJS
  */
 
+const $ = new Env("nodeloc CK 获取"); // 初始化环境
+const CK_KEY = "nodeloc_ck"; // BoxJS 存储 CK 的键名
+
+// 请求配置
 const url = `https://www.nodeloc.com/api/websocket/auth`;
-const method = `POST`;
 const headers = {
-  'Content-Type': 'application/x-www-form-urlencoded',
-  'Origin': 'https://www.nodeloc.com',
-  'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-  'Referer': 'https://www.nodeloc.com/',
-  'Cookie': 'flarum_lscache_vary=C75exMFv1MX55GQNMkFDAmyuu4SUTpTcE4I5WSNm; flarum_session=iAOH5bax1mhNmvhZhiWKdqXNTdVMAt81mNcBGi4k; _clck=1p7n8q4%7C2%7Cfr2%7C0%7C1751; flarum_remember=1nvskbVvzHbaTlKHo3vTnL6RwwZS6MvsEsaypDXh',
-  'Accept-Encoding': 'gzip, deflate, br',
-  'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-  'Accept': '*/*',
-  'Connection': 'keep-alive'
+  "Content-Type": "application/x-www-form-urlencoded",
+  "Origin": "https://www.nodeloc.com",
+  "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+  "Referer": "https://www.nodeloc.com/",
+  "Cookie": $request ? $request.headers.Cookie : "", // 动态提取抓包 Cookie
 };
+const body = "socket_id=26292995.636612541&channel_name=private-user%3D2540";
+const requestConfig = { url, method: "POST", headers, body };
 
-const body = 'socket_id=26292995.636612541&channel_name=private-user%3D2540';
-
-const myRequest = {
-  url: url,
-  method: method,
-  headers: headers,
-  body: body
-};
-
-$task.fetch(myRequest).then(response => {
-  if (response.statusCode === 200) {
-    try {
-      const data = JSON.parse(response.body); // 解析为 JSON 对象
-      if (data.auth) {
-        console.log("成功获取ck: " + data.auth); // 打印 ck 到日志
-        $notify("nodeloc CK 获取", "获取成功", data.auth); // 弹窗提示获取成功
-
-        // 上传 CK 到 BoxJS
-        const boxjsUrl = `https://boxjs.com`; // 修改为你的 BoxJS 地址
-        const boxjsBody = {
-          key: "nodeloc_ck_cookie",
-          val: data.auth
-        };
-        const boxjsHeaders = {
-          'Content-Type': 'application/json'
-        };
-
-        const boxjsRequest = {
-          url: boxjsUrl,
-          method: 'POST',
-          headers: boxjsHeaders,
-          body: JSON.stringify(boxjsBody)
-        };
-
-        $task.fetch(boxjsRequest).then(boxjsResponse => {
-          if (boxjsResponse.statusCode === 200) {
-            console.log("CK 成功上传到 BoxJS");
-          } else {
-            console.log("CK 上传到 BoxJS 失败，状态码：" + boxjsResponse.statusCode);
-          }
-          $done();
-        });
-      } else {
-        console.log("未找到 auth 字段，返回数据: ", data);
-      }
-    } catch (e) {
-      console.log("解析 JSON 失败: ", e);
-    }
-  } else {
-    console.log("请求失败，状态码：" + response.statusCode);
+// 主逻辑
+!(async () => {
+  if (!$request) {
+    $.msg($.name, "❌ 请通过抓包获取 Cookie", "未捕获到请求内容！");
+    return $.done();
   }
-  $done();
-}, reason => {
-  console.log("请求失败，原因：" + reason.error);
-  $done();
-});
+
+  try {
+    // 发起请求获取 CK
+    const response = await httpRequest(requestConfig);
+    if (response.statusCode === 200) {
+      const data = JSON.parse(response.body);
+      if (data.auth) {
+        console.log(`🎉 成功获取 CK: ${data.auth}`);
+        $.msg("nodeloc CK 获取", "获取成功", data.auth);
+
+        // 存储 CK 到 BoxJS
+        saveCK(data.auth);
+      } else {
+        console.log(`❌ 未找到 auth 字段，返回数据: ${JSON.stringify(data)}`);
+      }
+    } else {
+      console.log(`❌ 请求失败，状态码: ${response.statusCode}`);
+    }
+  } catch (error) {
+    console.error(`❌ 获取 CK 出现异常: ${error.message}`);
+  }
+  $.done();
+})();
+
+// 保存 CK 到 BoxJS
+function saveCK(ck) {
+  const savedCK = $.getdata(CK_KEY) || ""; // 获取已存储的 CK
+  const ckArr = savedCK.split("@").filter(Boolean); // 解析为数组
+  if (!ckArr.includes(ck)) ckArr.push(ck); // 避免重复
+  $.setdata(ckArr.join("@"), CK_KEY); // 持久化保存
+  console.log("🎉 CK 已上传到 BoxJS");
+}
+
+// 异步请求封装
+function httpRequest(config) {
+  return new Promise((resolve, reject) => {
+    $task.fetch(config).then(resolve, reject);
+  });
+}
+
+// 环境初始化函数
+function Env(name) {
+  const isNode = typeof module !== "undefined" && !!module.exports;
+  const isQuanX = typeof $task !== "undefined";
+  const isSurge = typeof $httpClient !== "undefined" && typeof $persistentStore !== "undefined";
+  const isLoon = typeof $loon !== "undefined";
+  const msg = (title, subt, desc) => {
+    console.log(`${title}\n${subt}\n${desc}`);
+    if (isQuanX) $notify(title, subt, desc);
+    if (isSurge || isLoon) $notification.post(title, subt, desc);
+  };
+  const getdata = (key) => {
+    if (isQuanX) return $prefs.valueForKey(key);
+    if (isSurge || isLoon) return $persistentStore.read(key);
+  };
+  const setdata = (val, key) => {
+    if (isQuanX) return $prefs.setValueForKey(val, key);
+    if (isSurge || isLoon) return $persistentStore.write(val, key);
+  };
+  const done = (val = {}) => (isQuanX || isSurge || isLoon) && $done(val);
+  return { name, isNode, isQuanX, isSurge, isLoon, msg, getdata, setdata, done };
+}
