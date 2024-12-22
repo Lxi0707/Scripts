@@ -6,7 +6,7 @@
 
 
 [rewrite_local]
-^https?:\/\/api\.m\.jd\.com/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-response-body https://raw.githubusercontent.com/wf021325/qx/master/js/jd_price.js
+^https?:\/\/api\.m\.jd\.com/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig) url script-response-body https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/jd_price2.js
 
 
 [mitm]
