@@ -54,12 +54,16 @@ function handleServerConfig(body) {
 
 function handleBasicConfig(body) {
     try {
-        console.log("处理 basicConfig");
+        console.log("处理 basicConfig，原始数据:", body);
         let obj = JSON.parse(body);
         const JDHttpToolKit = obj?.data?.JDHttpToolKit;
         if (JDHttpToolKit) {
+            console.log("发现 JDHttpToolKit，处理前:", JDHttpToolKit);
             delete JDHttpToolKit.httpdns;
             delete JDHttpToolKit.dnsvipV6;
+            console.log("处理后:", JDHttpToolKit);
+        } else {
+            console.log("未找到 JDHttpToolKit，跳过修改");
         }
         $done({ body: JSON.stringify(obj) });
     } catch (error) {
