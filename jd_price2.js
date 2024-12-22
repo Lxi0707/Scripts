@@ -17,34 +17,41 @@ hostname = api.m.jd.com
 const path1 = "serverConfig";
 const path2 = "wareBusiness";
 const path3 = "basicConfig";
-const consolelog = true; // 开启调试日志，方便排查问题
+const consolelog = true; // 设置为 true 可打印详细日志
 const url = $request.url;
 const body = $response.body;
+
 const $ = new Env("京东比价");
 
+if (!body) {
+    console.log("未接收到 body 数据，直接返回");
+    $done({});
+}
+
 try {
-    if (url.includes(path1)) {
+    if (url.indexOf(path1) !== -1) {
         handleServerConfig(body);
-    } else if (url.includes(path3)) {
+    } else if (url.indexOf(path3) !== -1) {
         handleBasicConfig(body);
-    } else if (url.includes(path2)) {
+    } else if (url.indexOf(path2) !== -1) {
         handleWareBusiness(body);
     } else {
-        console.log("URL 未匹配任何路径规则");
+        console.log("未匹配到任何路径，直接返回");
         $done({ body });
     }
 } catch (error) {
-    console.log("脚本运行出错:", error);
+    console.error("脚本运行出错:", error);
     $done({ body });
 }
 
 function handleServerConfig(body) {
     try {
-        console.log("处理 serverConfig");
         let obj = JSON.parse(body);
+        console.log("处理 serverConfig，原始数据:", obj.serverConfig);
         delete obj.serverConfig.httpdns;
         delete obj.serverConfig.dnsvip;
         delete obj.serverConfig.dnsvip_v6;
+        console.log("处理 serverConfig 后的数据:", obj.serverConfig);
         $done({ body: JSON.stringify(obj) });
     } catch (error) {
         logError("handleServerConfig", error, body);
@@ -54,14 +61,14 @@ function handleServerConfig(body) {
 
 function handleBasicConfig(body) {
     try {
-        console.log("处理 basicConfig，原始数据:", body);
         let obj = JSON.parse(body);
+        console.log("处理 basicConfig，原始数据:", obj);
         const JDHttpToolKit = obj?.data?.JDHttpToolKit;
         if (JDHttpToolKit) {
             console.log("发现 JDHttpToolKit，处理前:", JDHttpToolKit);
             delete JDHttpToolKit.httpdns;
             delete JDHttpToolKit.dnsvipV6;
-            console.log("处理后:", JDHttpToolKit);
+            console.log("处理后 JDHttpToolKit:", JDHttpToolKit);
         } else {
             console.log("未找到 JDHttpToolKit，跳过修改");
         }
@@ -74,134 +81,117 @@ function handleBasicConfig(body) {
 
 function handleWareBusiness(body) {
     try {
-        console.log("处理 wareBusiness");
         let obj = JSON.parse(body);
+        console.log("处理 wareBusiness，原始数据:", obj);
         if (Number(obj?.code) > 0 && Number(obj?.wait) > 0) {
-            $.msg("灰灰提示，可能被风控，请勿频繁操作", "", obj?.tips);
+            $.msg("灰灰提示", "可能被风控，请勿频繁操作", obj?.tips);
             $done({ body });
-            return;
         }
+        const floors = obj.floors || [];
+        const commodity_info = floors[floors.length - 1];
+        const shareUrl = commodity_info?.data?.property?.shareUrl;
 
-        const floors = obj?.floors;
-        if (!Array.isArray(floors)) {
-            logError("handleWareBusiness", "floors 不是数组", floors);
-            $done({ body });
-            return;
-        }
+        if (shareUrl) {
+            requestHistoryPrice(shareUrl)
+                .then((data) => {
+                    if (data) {
+                        const lowerword = createAdWord();
+                        lowerword.data.ad.textColor = "#fe0000";
+                        let bestIndex = floors.findIndex((element) =>
+                            element.mId === lowerword.mId || element.sortId > lowerword.sortId
+                        );
+                        bestIndex = bestIndex === -1 ? floors.length : bestIndex;
 
-        const commodityInfo = floors[floors.length - 1];
-        const shareUrl = commodityInfo?.data?.property?.shareUrl;
-
-        if (!shareUrl) {
-            logError("handleWareBusiness", "shareUrl 缺失", commodityInfo);
-            $done({ body });
-            return;
-        }
-
-        requestHistoryPrice(shareUrl)
-            .then(data => {
-                if (data) {
-                    const lowerWord = createAdWord();
-                    const bestIndex = findInsertIndex(floors, lowerWord);
-
-                    if (data.ok === 1 && data.single) {
-                        const lowerMsg = createLowerMsg(data.single);
-                        const detail = createPriceSummary(data);
-                        const tip = data.PriceRemark?.Tip + " (仅供参考)";
-                        lowerWord.data.ad.adword = `${lowerMsg} ${tip}\n${detail}`;
-                    } else if (data.ok === 0 && data.msg) {
-                        lowerWord.data.ad.adword = "慢慢买提示您：" + data.msg;
+                        if (data.ok === 1 && data.single) {
+                            const lower = lowerMsgs(data.single);
+                            const detail = priceSummary(data);
+                            const tip = data.PriceRemark.Tip + "(仅供参考)";
+                            lowerword.data.ad.adword = `${lower} ${tip}\n${detail}`;
+                        } else if (data.ok === 0 && data.msg.length > 0) {
+                            lowerword.data.ad.adword = "慢慢买提示您：" + data?.msg;
+                        }
+                        floors.splice(bestIndex, 0, lowerword);
+                        console.log("插入比价数据后 floors:", floors);
+                        $done({ body: JSON.stringify(obj) });
+                    } else {
+                        console.log("未获取到历史价格数据");
+                        $done({ body });
                     }
-
-                    floors.splice(bestIndex, 0, lowerWord);
-                }
-                $done({ body: JSON.stringify(obj) });
-            })
-            .catch(error => {
-                logError("requestHistoryPrice", error, null);
-                $done({ body });
-            });
+                })
+                .catch((error) => {
+                    console.error("请求历史价格数据失败:", error);
+                    $done({ body });
+                });
+        } else {
+            console.log("未找到 shareUrl，跳过比价处理");
+            $done({ body });
+        }
     } catch (error) {
         logError("handleWareBusiness", error, body);
         $done({ body });
     }
 }
 
-async function requestHistoryPrice(url) {
-    try {
-        console.log("请求历史价格数据:", url);
-        const response = await $.http.get({ url });
-        return JSON.parse(response.body);
-    } catch (error) {
-        logError("requestHistoryPrice", error, url);
-        return null;
-    }
-}
-
-function createLowerMsg(single) {
+function lowerMsgs(single) {
     const lower = single.lowerPriceyh;
     const timestamp = parseInt(single.lowerDateyh.match(/\d+/), 10);
     const lowerDate = $.time("yyyy-MM-dd", timestamp);
-    return `历史最低:¥${lower} (${lowerDate})`;
+    return `历史最低: ¥${lower} (${lowerDate}) `;
 }
 
-function createPriceSummary(data) {
+function priceSummary(data) {
     let summary = "";
-    const listPriceDetail = data.PriceRemark?.ListPriceDetail?.slice(0, 4) || [];
-    const historyList = createHistorySummary(data.single);
-
-    [...listPriceDetail, ...historyList].forEach(item => {
+    const listPriceDetail = data.PriceRemark.ListPriceDetail.slice(0, 4);
+    const list = listPriceDetail.concat(historySummary(data.single));
+    list.forEach((item) => {
         const nameMap = {
             "双11价格": "双十一价格",
-            "618价格": "六一八价格"
+            "618价格": "六一八价格",
         };
         item.Name = nameMap[item.Name] || item.Name;
-        summary += `\n${item.Name}        ${item.Price}        ${item.Date}        ${item.Difference}`;
+        const delimiter = "        ";
+        summary += `\n${item.Name}${delimiter}${item.Price}${delimiter}${item.Date}${delimiter}${item.Difference}`;
     });
     return summary;
 }
 
-function createHistorySummary(single) {
+function historySummary(single) {
     const singleArray = JSON.parse(`[${single.jiagequshiyh}]`);
-    const reversedList = singleArray.map(item => ({
-        Date: $.time("yyyy-MM-dd", item[0]),
-        Price: `¥${item[1]}`,
-        Name: item[2]
-    })).reverse().slice(0, 360);
+    const list = singleArray
+        .map((item) => ({
+            Date: $.time("yyyy-MM-dd", item[0]),
+            Price: item[1],
+            Name: item[2],
+        }))
+        .reverse()
+        .slice(0, 360);
 
-    let currentPrice = reversedList[0]?.Price || 0;
-    const lowestList = ["三十天最低", "九十天最低", "一百八最低", "三百六最低"].map((name, i) => ({
+    let currentPrice, lowest30, lowest90, lowest180, lowest360;
+    const createLowest = (name, price, date) => ({
         Name: name,
-        Price: `¥${currentPrice}`,
-        Date: reversedList[0]?.Date,
-        Difference: "0"
-    }));
-
-    reversedList.forEach((item, index) => {
-        if (index < 30 && item.Price < lowestList[0].Price) updateLowest(lowestList[0], item);
-        if (index < 90 && item.Price < lowestList[1].Price) updateLowest(lowestList[1], item);
-        if (index < 180 && item.Price < lowestList[2].Price) updateLowest(lowestList[2], item);
-        if (index < 360 && item.Price < lowestList[3].Price) updateLowest(lowestList[3], item);
+        Price: `¥${price}`,
+        Date: date,
+        Difference: difference(currentPrice, price),
     });
-
-    return lowestList;
+    list.forEach((item, index) => {
+        if (index === 0) {
+            currentPrice = item.Price;
+            lowest30 = createLowest("三十天最低", item.Price, item.Date);
+            lowest90 = createLowest("九十天最低", item.Price, item.Date);
+            lowest180 = createLowest("一百八最低", item.Price, item.Date);
+            lowest360 = createLowest("三百六最低", item.Price, item.Date);
+        }
+        if (index < 30 && item.Price < lowest30.Price) lowest30 = createLowest("三十天最低", item.Price, item.Date);
+        if (index < 90 && item.Price < lowest90.Price) lowest90 = createLowest("九十天最低", item.Price, item.Date);
+        if (index < 180 && item.Price < lowest180.Price) lowest180 = createLowest("一百八最低", item.Price, item.Date);
+        if (index < 360 && item.Price < lowest360.Price) lowest360 = createLowest("三百六最低", item.Price, item.Date);
+    });
+    return [lowest30, lowest90, lowest180, lowest360];
 }
 
-function updateLowest(lowest, item) {
-    lowest.Price = `¥${item.Price}`;
-    lowest.Date = item.Date;
-    lowest.Difference = difference(lowest.Price, item.Price);
-}
-
-function findInsertIndex(floors, lowerWord) {
-    return floors.findIndex(element => element.mId === lowerWord.mId || element.sortId > lowerWord.sortId) || floors.length;
-}
-
-function logError(context, error, data) {
-    if (consolelog) {
-        console.log(`[${context}] 错误信息:`, error);
-        if (data) console.log(`[${context}] 数据:`, JSON.stringify(data, null, 2));
-    }
+function logError(functionName, error, body) {
+    console.error(`函数 ${functionName} 执行出错:`, error);
+    console.log("出错的 body 数据:", body);
 }
 
 
