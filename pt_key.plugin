@@ -1,0 +1,9 @@
+#!name=JD-Cookie
+#!desc=更新cookie
+#!icon=https://raw.githubusercontent.com/Lxi0707/boxjs/refs/heads/main/icon/jd.png/120x120.png
+
+[Script]
+JD-Cookie = type=http-request, pattern=^https?:\/\/api\.m\.jd\.com\/client\.action\?functionId=(wareBusiness|serverConfig|basicConfig), script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js, requires-body=false
+
+[MITM]
+hostname = %APPEND% api.m.jd.com
