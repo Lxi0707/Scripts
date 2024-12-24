@@ -1,6 +1,5 @@
 #!name=JD-Cookie
-#!desc=更新cookie,2024.10.29修改脚本一直处于运行状态，添加多账号获取
-2024.10.30添加ck在日志显示,surge,loon适配.脚本说明:获取新ck切换账号后，退后台重进秒通知，通知内包含cookie,cookie信息自行复制使用
+#!desc=更新cookie,2024.10.29修改脚本一直处于运行状态，添加多账号获取,2024.10.30添加ck在日志显示,surge,loon适配.脚本说明:获取新ck切换账号后，退后台重进秒通知，通知内包含cookie,cookie信息自行复制使用
 #!homepage=https://github.com/Lxi0707/Scripts/tree/X
 #!icon=https://raw.githubusercontent.com/Lxi0707/boxjs/refs/heads/main/icon/jd.png
 #!date = 2024-12-24 20:30:00
