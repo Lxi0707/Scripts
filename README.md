@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/jd.png" width="200">
+<img src="https://raw.githubusercontent.com/Lxi0707/boxjs/refs/heads/main/icon/jd.png" width="200">
 </div>
 
 ## ⚙️ jd cookie 配置文件
