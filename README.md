@@ -3,10 +3,11 @@
 </div>
 
 ## ⚙️ jd cookie 配置文件
--  📦 **quantumultx Loon** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js)
+-  📦 **quantumultx** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.js)
+-  📦 **Loon插件** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.plugin)
 -  📦 **surge模块** ： [查看链接](https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/X/pt_key.sgmodule)
 
--  📢 **使用说明** ： 切换账户需退后台重新进
+-  📢 **使用说明** ： 获取新ck切换账号后，退后台重进秒通知，通知内包含cookie,cookie信息自行复制上车使用
 
 
 ### ❗️**脚本声明** ： 
