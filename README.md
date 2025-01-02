@@ -1,3 +1,7 @@
+### 欢迎来到我的scripts仓库
+
+进入我的x分支即可找到三大代理jd-ptkey脚本
+
 <div>
     <a href="https://t.me/LXi_Collection_hall" target="_blank"><img src="https://img.shields.io/badge/Telegram-频道-rgb(170, 220, 245)" /></a>&emsp;
     <a 
