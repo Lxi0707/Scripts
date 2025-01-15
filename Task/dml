@@ -1,7 +1,7 @@
 #!name=达美乐小游戏
 #!desc=打开达乐美披萨公众号->优惠｜咨询->有奖游戏->手动完成一次游戏，获取Cookie使用
 #!category=羊毛
-surge模块
+surge模块,原路径https://gist.githubusercontent.com/Sliverkiss/6b4da0d367d13790a9fd1d928c82bdf8/raw/dlm.js
 
 [Script]
 达美乐小游戏获取token = type=http-response,pattern=^https:\/\/game\.dominos\.com\.cn\/.+\/game\/gameDone,script-path=https://gist.githubusercontent.com/Sliverkiss/6b4da0d367d13790a9fd1d928c82bdf8/raw/dlm.js,requires-body=1,max-size=0
