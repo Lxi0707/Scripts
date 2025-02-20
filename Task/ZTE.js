@@ -5,7 +5,7 @@
  */
 const $ = new Env('中兴手机商城');
 const ZTE = ($.isNode() ? process.env.ZTE : $.getdata("ZTE")) || '';
-const OCR_SERVER = ($.isNode() ? process.env.OCR_SERVER : $.getdata("OCR_SERVER")) || 'http://ocr.jdmk.xyz:1777';
+const OCR_SERVER = ($.isNode() ? process.env.OCR_SERVER : $.getdata("OCR_SERVER")) || 'http://ocr.1pro.top';
 let Utils = undefined;
 let phone = ''
 let password = ''
