@@ -3,7 +3,7 @@
 
 [task_local]
 
-event-interaction ip.js, tag=ip, img-url=checkmark.seal.system, enabled=true
+event-interaction https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Rewrite/ip_check.js, tag=ip, img-url=checkmark.seal.system, enabled=true
 
 
 // IP纯净度检测脚本
