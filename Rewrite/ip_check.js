@@ -9,7 +9,7 @@ event-interaction https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/m
 // IP纯净度检测脚本 v2.2
 // 功能：检测IP信息、流媒体解锁、DNS污染、黑名单记录，并计算纯净度百分比
 
-*/
+**/
 const $ = new Env('IP纯净度检测');
 
 (async () => {
