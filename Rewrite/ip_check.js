@@ -9,11 +9,10 @@ event-interaction https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/m
 // IP纯净度检测脚本 v2.2
 // 改进内容：
 // 1. 修复纯净度评分算法，避免固定67分的问题
+// 2. 增加更多检测指标和验证步骤
+// 3. 优化通知显示格式，突出纯净度百分比
 
-// 3. 增加更多检测指标和验证步骤
-// 4. 优化通知显示格式
-
-*/
+**/
 const $ = new Env('IP纯净度检测');
 
 (async () => {
@@ -552,71 +551,67 @@ async function checkIPHistory(ip) {
     }
 }
 
-// 生成面板信息
+// 生成面板信息（优化纯净度百分比显示）
 async function generatePanel(networkInfo, streamingResults, dnsResults, ipPurityResults) {
-    // 构造通知内容
-    let content = "";
-    let subtitle = `IP: ${networkInfo.ip} | 类型: ${networkInfo.ipType}`;
-    
-    // 不同客户端显示不同格式
-    if ($.isLoon() || $.isQuanX()) {
-        content = `ISP: ${networkInfo.isp}\n位置: ${networkInfo.location}\nASN: ${networkInfo.asn} (${networkInfo.asname})\n\n`;
-        
-        content += "📺 流媒体解锁:\n";
-        streamingResults.forEach(s => content += `${s.name}: ${s.status}${s.details ? ` (${s.details})` : ''}\n`);
-        
-        content += "\n🔍 DNS检测:\n";
-        dnsResults.forEach(d => content += `${d.domain}: ${d.status}${d.details ? ` (${d.details})` : ''}\n`);
-        
-        content += "\n🛡️ IP纯净度:\n";
-        ipPurityResults.results.forEach(r => content += `${r.service}: ${r.status}${r.details ? ` (${r.details})` : ''}\n`);
-        
-        content += `\n✨ 纯净度评分: ${ipPurityResults.purityScore}/100\n`;
-        content += `⚠️ 风险评分: ${ipPurityResults.riskScore}/100\n`;
-        
-        if (ipPurityResults.purityScore >= 85) {
-            content += "\n🌟 IP非常纯净，适合高级用途";
-        } else if (ipPurityResults.purityScore >= 70) {
-            content += "\n👍 IP较为纯净，一般使用无问题";
-        } else if (ipPurityResults.purityScore >= 50) {
-            content += "\n⚠️ IP纯净度一般，可能存在限制";
-        } else {
-            content += "\n❌ IP纯净度较差，不推荐重要用途";
-        }
-    } else if ($.isSurge() || $.isStash()) {
-        content = `ISP: ${networkInfo.isp}\n位置: ${networkInfo.location}\nASN: ${networkInfo.asn} (${networkInfo.asname})\n\n`;
-        
-        content += "流媒体解锁:\n";
-        streamingResults.forEach(s => content += `${s.name}: ${s.status}${s.details ? ` (${s.details})` : ''}\n`);
-        
-        content += "\nDNS检测:\n";
-        dnsResults.forEach(d => content += `${d.domain}: ${d.status}${d.details ? ` (${d.details})` : ''}\n`);
-        
-        content += "\nIP纯净度:\n";
-        ipPurityResults.results.slice(0, 4).forEach(r => content += `${r.service}: ${r.status}\n`);
-        
-        content += `\n纯净度评分: ${ipPurityResults.purityScore}/100\n`;
-        content += `风险评分: ${ipPurityResults.riskScore}/100\n`;
+    // 构造纯净度评分显示（带颜色和表情）
+    const purityScore = ipPurityResults.purityScore;
+    let purityDisplay;
+    if (purityScore >= 85) {
+        purityDisplay = `✨ IP纯净度: ${purityScore}% (优秀)`;
+    } else if (purityScore >= 70) {
+        purityDisplay = `👍 IP纯净度: ${purityScore}% (良好)`;
+    } else if (purityScore >= 50) {
+        purityDisplay = `⚠️ IP纯净度: ${purityScore}% (一般)`;
+    } else {
+        purityDisplay = `❌ IP纯净度: ${purityScore}% (较差)`;
     }
+
+    // 构造通知标题（直接显示百分比）
+    const title = `IP检测 | 纯净度: ${purityScore}%`;
+    const subtitle = `IP: ${networkInfo.ip} | 类型: ${networkInfo.ipType}`;
     
+    // 构造通知内容
+    let content = `ISP: ${networkInfo.isp}\n位置: ${networkInfo.location}\n`;
+    content += `ASN: ${networkInfo.asn} (${networkInfo.asname})\n\n`;
+    content += `${purityDisplay}\n`;
+    content += `⚠️ 风险评分: ${ipPurityResults.riskScore}/100\n\n`;
+    
+    // 流媒体解锁结果
+    content += "📺 流媒体解锁:\n";
+    streamingResults.forEach(s => content += `${s.name}: ${s.status}${s.details ? ` (${s.details})` : ''}\n`);
+    
+    // DNS检测结果
+    content += "\n🔍 DNS检测:\n";
+    dnsResults.forEach(d => content += `${d.domain}: ${d.status}${d.details ? ` (${d.details})` : ''}\n`);
+    
+    // IP纯净度详细结果
+    content += "\n🛡️ IP纯净度检测:\n";
+    ipPurityResults.results.forEach(r => content += `${r.service}: ${r.status}${r.details ? ` (${r.details})` : ''}\n`);
+    
+    // 根据评分给出建议
+    if (purityScore >= 85) {
+        content += "\n🌟 IP非常纯净，适合高级用途";
+    } else if (purityScore >= 70) {
+        content += "\n👍 IP较为纯净，一般使用无问题";
+    } else if (purityScore >= 50) {
+        content += "\n⚠️ IP纯净度一般，可能存在限制";
+    } else {
+        content += "\n❌ IP纯净度较差，不推荐重要用途";
+    }
+
     // 构造面板对象
     const panel = {
-        title: `IP检测 | ${ipPurityResults.purityScore}/100`,
+        title: title,
         content: content,
-        icon: ipPurityResults.purityScore >= 85 ? "checkmark.shield.fill" : 
-              ipPurityResults.purityScore >= 70 ? "exclamationmark.shield.fill" : "xmark.shield.fill",
-        "icon-color": ipPurityResults.purityScore >= 85 ? "#00FF00" : 
-                     ipPurityResults.purityScore >= 70 ? "#FFFF00" : "#FF0000"
+        subtitle: subtitle,
+        icon: purityScore >= 85 ? "checkmark.shield.fill" : 
+              purityScore >= 70 ? "exclamationmark.shield.fill" : "xmark.shield.fill",
+        "icon-color": purityScore >= 85 ? "#00FF00" : 
+                     purityScore >= 70 ? "#FFFF00" : "#FF0000"
     };
     
-    // 如果是Loon或Quantumult X，使用message字段
-    if ($.isLoon() || $.isQuanX()) {
-        panel.message = content;
-        panel.subtitle = subtitle;
-    }
-    
     $.log(JSON.stringify(panel));
-    $.notify(panel.title, subtitle, panel.content);
+    $.notify(panel.title, panel.subtitle, panel.content);
     $.done(panel);
 }
 
