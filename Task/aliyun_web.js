@@ -23,9 +23,9 @@ BoxJs订阅地址:
 https://raw.githubusercontent.com/leiyiyan/resource/main/subscribe/leiyiyan.boxjs.json
 
 [Script]
-http-response ^https?:\/\/developer\.aliyun\.com\/developer\/api\/my\/user\/getUser script-path=https://raw.githubusercontent.com/leiyiyan/resource/main/script/aliyun_web/aliyun_web.js, requires-body=true, timeout=60, tag=阿里云Web Cookie
+http-response ^https?:\/\/developer\.aliyun\.com\/developer\/api\/my\/user\/getUser script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/aliyun_web.js, requires-body=true, timeout=60, tag=阿里云Web Cookie
 
-cron "0 7,13 * * *" script-path=https://raw.githubusercontent.com/leiyiyan/resource/main/script/aliyun_web/aliyun_web.js, tag=阿里云社区日常任务
+cron "0 7,13 * * *" script-path=https://raw.githubusercontent.com/Lxi0707/Scripts/refs/heads/main/Task/aliyun_web.js, tag=阿里云社区日常任务
 
 [MITM]
 hostname = developer.aliyun.com
